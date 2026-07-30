@@ -131,6 +131,14 @@ describe("expr", () => {
     `);
   });
 
+  // Issue #73
+  it(`preserves parenthesis around DISTINCT inside function arguments`, async () => {
+    await test(dedent`
+      SELECT count(DISTINCT (foo, bar))
+      FROM tbl
+    `);
+  });
+
   describe("case", () => {
     it(`formats CASE expression always on multiple lines`, async () => {
       await test(dedent`

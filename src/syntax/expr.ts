@@ -70,15 +70,19 @@ export const exprMap: CstToDocMap<AllExprNodes> = {
       return print("expr");
     }
     // Discard unnecessary parenthesis around function arguments
+    const parent = path.getParentNode(0) as Node;
+    const grandParent = path.getParentNode(1) as Node;
     if (
-      isListExpr(path.getParentNode(0)) &&
-      isFuncArgs(path.getParentNode(1)) &&
+      isListExpr(parent) &&
+      isFuncArgs(grandParent) &&
+      // TODO: We really should parse the DISTINCT (...) expression as a separate thing.
+      // For now this check here patches up the deficiency in the parser.
+      !grandParent.distinctKw &&
       !isSelectStmt(node.expr) &&
       !isCompoundSelectStmt(node.expr)
     ) {
       return print("expr");
     }
-    const parent = path.getParentNode() as Node;
     const lineStyle =
       isCreateTableStmt(parent) && print.dynamicLine() === hardline
         ? hardline
