@@ -117,11 +117,19 @@ export const exprMap: CstToDocMap<AllExprNodes> = {
   case_when: (print, node) => {
     if (isProgram(node.result)) {
       return [
-        print.spaced(["whenKw", "condition", "thenKw"]),
+        group([
+          group([print("whenKw"), indent([line, print("condition")])]),
+          line,
+          print("thenKw"),
+        ]),
         indent([hardline, stripTrailingHardline(print("result"))]),
       ];
     }
-    return print.spaced(["whenKw", "condition", "thenKw", "result"]);
+    return group([
+      group([print("whenKw"), indent([line, print("condition")])]),
+      line,
+      group([print("thenKw"), indent([line, print("result")])]),
+    ]);
   },
   case_else: (print, node) => {
     if (isProgram(node.result)) {
