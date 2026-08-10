@@ -83,6 +83,13 @@ export const exprMap: CstToDocMap<AllExprNodes> = {
     ) {
       return print("expr");
     }
+    if (
+      isEmptyParenContent(node.expr) &&
+      !hasComments(node) &&
+      !hasComments(node.expr)
+    ) {
+      return ["(", print("expr"), ")"];
+    }
     const lineStyle =
       isCreateTableStmt(parent) && print.dynamicLine() === hardline
         ? hardline
@@ -328,3 +335,23 @@ const isFunctionContext = (
 const isBooleanOp = ({ name }: Keyword) => name === "AND" || name === "OR";
 
 const isCompactOp = (op: string) => op === "->" || op === "->>";
+
+const isEmptyParenContent = (expr: Node): boolean => {
+  if (isFuncArgs(expr)) {
+    return (
+      expr.args.items.length === 0 &&
+      !expr.distinctKw &&
+      !expr.nullHandlingKw &&
+      !expr.orderBy &&
+      !expr.limit &&
+      !expr.having
+    );
+  }
+  if (isListExpr(expr)) {
+    return expr.items.length === 0;
+  }
+  return false;
+};
+
+const hasComments = (node: Node): boolean =>
+  Boolean((node as Node & { comments?: unknown[] }).comments?.length);
