@@ -124,11 +124,22 @@ export const exprMap: CstToDocMap<AllExprNodes> = {
   case_when: (print, node) => {
     if (isProgram(node.result)) {
       return [
-        print.spaced(["whenKw", "condition", "thenKw"]),
+        group([
+          group([print("whenKw"), indent([line, print("condition")])]),
+          line,
+          print("thenKw"),
+        ]),
         indent([hardline, stripTrailingHardline(print("result"))]),
       ];
     }
-    return print.spaced(["whenKw", "condition", "thenKw", "result"]);
+    return group([
+      group([
+        group([print("whenKw"), indent([line, print("condition")])]),
+        line,
+        print("thenKw"),
+      ]),
+      indent([line, print("result")]),
+    ]);
   },
   case_else: (print, node) => {
     if (isProgram(node.result)) {
@@ -137,7 +148,7 @@ export const exprMap: CstToDocMap<AllExprNodes> = {
         indent([hardline, stripTrailingHardline(print("result"))]),
       ];
     }
-    return print.spaced(["elseKw", "result"]);
+    return group([print("elseKw"), indent([line, print("result")])]);
   },
   member_expr: (print, node) =>
     isArraySubscript(node.property)
